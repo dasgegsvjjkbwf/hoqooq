@@ -1,0 +1,662 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>حقوق گزارش کار</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect x='2' y='2' width='60' height='60' rx='13' fill='%2306100b' stroke='%2300ff88' stroke-width='4'/%3E%3Ctext x='32' y='48' font-family='Arial Black,Arial,sans-serif' font-size='42' font-weight='900' fill='%2300ff88' text-anchor='middle'%3ED%3C/text%3E%3C/svg%3E">
+  <style>
+    :root {
+      --bg: #0a0a0f; --card: #16161f; --card-hover: #2a2a3a; --text: #f0f0f5;
+      --muted: #6b6b80; --accent: #ff2d95; --accent2: #00d4aa; --accent3: #7b2cbf;
+      --glass: rgba(255,255,255,0.03); --border: rgba(255,255,255,0.08);
+    }
+    * { box-sizing: border-box; }
+    body {
+      font-family: 'Segoe UI', Tahoma, Arial, sans-serif;
+      background: var(--bg); color: var(--text); min-height: 100vh; margin: 0;
+      display: flex; align-items: center; justify-content: center; overflow-x: hidden;
+    }
+    .bg-pattern {
+      position: fixed; inset: 0; z-index: -1;
+      background:
+        radial-gradient(ellipse 80% 50% at 20% 20%, rgba(123,44,191,0.15), transparent),
+        radial-gradient(ellipse 60% 40% at 80% 80%, rgba(0,212,170,0.12), transparent),
+        radial-gradient(ellipse 50% 30% at 50% 50%, rgba(255,45,149,0.1), transparent);
+    }
+    .grid-overlay {
+      position: fixed; inset: 0; z-index: -1; opacity: .3;
+      background-image: linear-gradient(rgba(255,255,255,.02) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,.02) 1px, transparent 1px);
+      background-size: 50px 50px;
+    }
+    .container {
+      background: var(--card); border: 1px solid var(--border); border-radius: 20px;
+      padding: 40px 32px; width: 100%; max-width: 520px;
+      box-shadow: 0 8px 32px rgba(0,0,0,.4); position: relative; z-index: 1;
+    }
+    h2 {
+      text-align: center; margin: 0 0 24px; font-size: 24px;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+    }
+    .form { display: grid; grid-template-columns: 1fr 1fr auto; gap: 12px; margin-bottom: 24px; }
+    input, select {
+      background: var(--glass); border: 1px solid var(--border); border-radius: 12px;
+      padding: 10px 14px; color: var(--text); font-size: 14px; width: 100%; font-family: inherit;
+    }
+    select option { background: var(--card); color: var(--text); }
+    input:focus, select:focus { outline: none; border-color: var(--accent); }
+    button {
+      background: linear-gradient(135deg, var(--accent), var(--accent3));
+      border: none; border-radius: 12px; padding: 10px 20px; color: #fff;
+      font-weight: 600; font-size: 14px; cursor: pointer; font-family: inherit;
+    }
+    table { width: 100%; border-collapse: collapse; }
+    th { padding: 12px 0; font-size: 12px; color: var(--muted); border-bottom: 1px solid var(--border); }
+    td { padding: 14px 0; border-bottom: 1px solid var(--border); }
+    .action-btn {
+      background: rgba(255,255,255,.05); border: 1px solid var(--border);
+      border-radius: 8px; padding: 6px 10px; color: var(--muted); font-size: 12px; cursor: pointer;
+    }
+    .total { text-align: right; margin-top: 24px; padding-top: 20px; border-top: 1px solid var(--border); }
+    .total-label { font-size: 12px; color: var(--muted); margin-bottom: 8px; }
+    .total-value {
+      font-size: 28px; font-weight: 700;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+    }
+    #welcome {
+      position: fixed; inset: 0; z-index: 100; display: flex; align-items: center;
+      justify-content: center; flex-direction: column; gap: 12px;
+      background: linear-gradient(180deg, #12121c 0%, #0a0a0f 60%, #16161f 100%);
+      transition: transform .9s cubic-bezier(.76,0,.24,1);
+    }
+    #welcome.hide { transform: translateY(-101%); }
+    .welcome-text {
+      font-size: 42px; font-weight: 800;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+    }
+    .welcome-sub { color: var(--muted); font-size: 14px; }
+    #welcomeName { width: 240px; text-align: center; }
+    .welcome-btn { padding: 10px 34px; font-weight: 700; }
+    .player-row { margin-bottom: 14px; }
+    #fwDisplay { font-size: 13px; color: #ff7b7b; margin-top: 6px; font-weight: 600; }
+    #playerDisplay { font-size: 15px; margin-bottom: 6px; font-weight: 600; }
+    .powered { margin-top: 14px; text-align: center; font-size: 11px; font-weight: 800; letter-spacing: 1px; color: var(--muted); }
+    .next-btn { background: linear-gradient(135deg, var(--accent2), #00805f); width: 100%; font-size: 15px; padding: 12px 20px; }
+    .next-row, .history-toggle-row { margin-top: 14px; }
+    .history-toggle-btn { background: linear-gradient(135deg, var(--accent2), var(--accent3)); width: 100%; }
+    .players-toggle-btn {
+      width: 100%; background: transparent; border: 1px solid var(--accent2);
+      color: var(--accent2); font-size: 15px; padding: 12px 20px;
+    }
+    .history, .players { display: none; margin-top: 22px; padding-top: 16px; border-top: 1px solid var(--border); }
+    .history.open, .players.open { display: block; }
+    .history-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+    .history-title { font-size: 14px; font-weight: 700; }
+    .history-clear {
+      background: transparent; border: 1px solid var(--border); color: var(--muted);
+      font-size: 12px; padding: 5px 12px; border-radius: 8px; cursor: pointer;
+    }
+    #historyList, #playersList { display: flex; flex-direction: column; gap: 8px; max-height: 280px; overflow-y: auto; }
+    .history-item, .player-item {
+      display: flex; flex-direction: column; background: var(--glass);
+      border: 1px solid var(--border); border-radius: 10px; padding: 8px 12px; font-size: 13px;
+    }
+    .history-top, .player-row-item { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+    .history-player, .player-name { font-weight: 700; }
+    .history-date { font-size: 11px; color: var(--muted); }
+    .history-amount, .player-amount { font-weight: 700; color: var(--accent2); white-space: nowrap; }
+    .history-del {
+      background: transparent; border: 1px solid var(--border); color: var(--muted);
+      font-size: 11px; padding: 4px 9px; border-radius: 7px; cursor: pointer;
+    }
+    .stats { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-bottom: 12px; }
+    .stat-card { background: var(--glass); border: 1px solid var(--border); border-radius: 10px; padding: 10px 8px; text-align: center; }
+    .stat-num {
+      font-size: 16px; font-weight: 800;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+    }
+    .stat-lbl { font-size: 10px; color: var(--muted); margin-top: 4px; }
+    .price-toggle-row { margin-bottom: 10px; text-align: center; }
+    .price-toggle-btn {
+      background: transparent; border: 1px solid var(--border); color: var(--muted);
+      font-size: 12px; padding: 6px 16px; border-radius: 9px; cursor: pointer;
+    }
+    .price-editor { display: none; margin-bottom: 14px; padding: 12px; border: 1px solid var(--border); border-radius: 12px; background: var(--glass); }
+    .price-editor.open { display: block; }
+    .price-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 8px; }
+    .price-name { font-size: 13px; font-weight: 700; white-space: nowrap; }
+    .price-row input { max-width: 160px; padding: 7px 10px; font-size: 13px; }
+    .price-add { display: grid; grid-template-columns: 1fr 1fr auto; gap: 8px; margin: 10px 0; padding-top: 10px; border-top: 1px dashed var(--border); }
+    .price-actions { display: flex; gap: 8px; margin-top: 6px; }
+    .price-actions button { flex: 1; font-size: 13px; }
+    .price-reset { background: transparent !important; border: 1px solid var(--border) !important; color: var(--muted) !important; }
+    .history-empty { text-align: center; color: var(--muted); font-size: 12px; padding: 10px 0; }
+    .history-items { margin-top: 8px; padding-top: 8px; border-top: 1px dashed var(--border); display: flex; flex-direction: column; gap: 4px; }
+    .history-line { display: flex; justify-content: space-between; font-size: 12px; color: var(--muted); }
+    .history-line span:last-child { color: var(--text); font-weight: 600; }
+    .creator { margin-top: 20px; text-align: center; }
+    .creator a {
+      display: inline-block; text-decoration: none; font-size: 13px; color: var(--muted);
+      border: 1px solid var(--border); background: var(--glass); border-radius: 10px; padding: 8px 18px;
+    }
+    .subleader-box {
+      display: flex; align-items: center; gap: 10px; margin-top: 10px; cursor: pointer;
+      padding: 12px 14px; border: 1px solid var(--border); border-radius: 12px; background: var(--glass);
+    }
+    .subleader-box.active { border-color: rgba(0,212,170,.45); }
+    .subleader-box input, .player-item input { width: 20px; height: 20px; min-width: 20px; accent-color: var(--accent2); cursor: pointer; }
+    .subleader-title { font-size: 14px; font-weight: 700; display: block; }
+    .subleader-hint { font-size: 11px; color: var(--muted); }
+    .form.disabled { opacity: .4; pointer-events: none; }
+    .player-item { flex-direction: row; align-items: center; gap: 10px; cursor: pointer; flex-wrap: wrap; }
+    .player-item.paid { opacity: .7; border-color: rgba(0,212,170,.45); }
+    .player-item.paid .player-name { text-decoration: line-through; color: var(--muted); }
+    .player-item.paid .player-amount { color: var(--muted); }
+    .player-meta { flex: 1; min-width: 0; }
+    .player-count { font-size: 11px; color: var(--muted); }
+    .paid-tag { font-size: 11px; font-weight: 700; color: var(--muted); white-space: nowrap; }
+    .player-item.paid .paid-tag { color: var(--accent2); }
+    .paid-sum { text-align: center; font-size: 12px; color: var(--accent2); margin-bottom: 10px; }
+    .player-bonus { font-size: 11px; color: #ffbb33; font-weight: 600; margin-right: 6px; }
+    .player-total-with-bonus { font-weight: 700; color: #ffbb33; }
+    @media (max-width: 480px) { .form { grid-template-columns: 1fr; } button { width: 100%; } }
+  </style>
+</head>
+<body>
+  <div id="welcome">
+    <div class="welcome-text" id="welcomeText">خوش اومدی</div>
+    <input id="welcomeName" placeholder="اسمت رو بنویس..." onkeydown="if(event.key==='Enter')submitWelcomeName()">
+    <button class="welcome-btn" id="welcomeBtn" onclick="submitWelcomeName()">ورود</button>
+    <div class="welcome-sub" id="welcomeSub">اسمت رو بنویس و ورود رو بزن</div>
+  </div>
+  <div class="bg-pattern"></div>
+  <div class="grid-overlay"></div>
+  <div class="container">
+    <h2>حقوق گزارش کار</h2>
+    <div class="player-row">
+      <input id="playerName" placeholder="نام پلیر" oninput="updatePlayerName()">
+      <label class="subleader-box" id="subleaderBox">
+        <input type="checkbox" id="subleaderCheck" onchange="onSubleaderChange()">
+        <span>
+          <span class="subleader-title">پلیر سابلیدر</span>
+          <span class="subleader-hint">حقوق ثابت ۸٬۵۰۰٬۰۰۰ — هر FW برابر ۱٬۵۰۰٬۰۰۰ کسر</span>
+        </span>
+      </label>
+    </div>
+    <div class="form" id="taskForm">
+      <select id="taskName" onchange="updatePrice()"></select>
+      <input type="number" id="pricePerUnit" placeholder="پول هر کار">
+      <input type="number" id="quantity" placeholder="تعداد">
+      <button onclick="addRow()">افزودن</button>
+    </div>
+    <div class="price-toggle-row">
+      <button class="price-toggle-btn" onclick="togglePriceEditor()">ویرایش قیمت‌ها</button>
+    </div>
+    <div class="price-editor" id="priceBox">
+      <div id="priceRows"></div>
+      <div class="price-add">
+        <input id="newTaskName" placeholder="نام کار جدید">
+        <input type="number" id="newTaskPrice" placeholder="قیمت" min="0">
+        <button onclick="addCustomTask()">افزودن کار</button>
+      </div>
+      <div class="price-actions">
+        <button onclick="savePrices()">ذخیره قیمت‌ها</button>
+        <button class="price-reset" onclick="resetPrices()">بازگشت به پیش‌فرض</button>
+      </div>
+    </div>
+    <table>
+      <thead><tr><th>کار</th><th>پول هر واحد</th><th>تعداد</th><th>مجموع</th><th></th></tr></thead>
+      <tbody id="tableBody"></tbody>
+    </table>
+    <div style="margin:10px 0 6px">
+      <input type="number" id="fwCount" placeholder="تعداد FW" min="0" oninput="onFwChange()">
+    </div>
+    <div class="total">
+      <div class="total-label">حقوق کل</div>
+      <div id="playerDisplay"></div>
+      <div class="total-value" id="total">۰</div>
+      <div id="fwDisplay"></div>
+      <div class="total-label" id="netLabel" style="display:none">مبلغ نهایی</div>
+      <div class="total-value" id="netTotal" style="display:none">۰</div>
+    </div>
+    <div class="next-row"><button class="next-btn" onclick="nextPlayer()">تموم شد بریم پلیر بعدی (ثبت حقوق)</button></div>
+    <div class="history-toggle-row"><button class="history-toggle-btn" onclick="toggleHistory()">تاریخچه حقوق‌ها</button></div>
+    <div class="history" id="historyBox">
+      <div class="history-head">
+        <div class="history-title">حقوق‌های حساب‌شده قبلی</div>
+        <button class="history-clear" onclick="clearHistory()">پاک کردن همه</button>
+      </div>
+      <div class="stats">
+        <div class="stat-card"><div class="stat-num" id="statTotal">۰</div><div class="stat-lbl">مجموع پرداخت‌شده</div></div>
+        <div class="stat-card"><div class="stat-num" id="statCount">۰</div><div class="stat-lbl">تعداد محاسبات</div></div>
+        <div class="stat-card"><div class="stat-num" id="statTop">—</div><div class="stat-lbl">پرکارترین پلیر</div></div>
+      </div>
+      <div style="margin-bottom:10px"><input id="historySearch" placeholder="سرچ نام پلیر..." oninput="renderHistory()"></div>
+      <div id="historyList"></div>
+    </div>
+    <div class="history-toggle-row"><button class="players-toggle-btn" onclick="togglePlayers()">پلیرهای ثبت‌شده</button></div>
+    <div class="players" id="playersBox">
+      <div class="history-head">
+        <div class="history-title">چک‌لیست پرداخت پلیرها</div>
+        <button class="history-clear" onclick="clearPaid()">پاک کردن تیک‌ها</button>
+      </div>
+      <div class="stats">
+        <div class="stat-card"><div class="stat-num" id="pCount">۰</div><div class="stat-lbl">تعداد پلیر</div></div>
+        <div class="stat-card"><div class="stat-num" id="pUnpaid">۰</div><div class="stat-lbl">باقی‌مانده</div></div>
+        <div class="stat-card"><div class="stat-num" id="pPaidN">۰</div><div class="stat-lbl">پرداخت‌شده</div></div>
+      </div>
+      <div class="paid-sum" id="pPaidSum"></div>
+      <div id="playersList"></div>
+    </div>
+    <div class="creator"><a href="https://t.me/ttafavot" target="_blank" rel="noopener">سازنده</a></div>
+    <div class="powered">Powered By DAMAS</div>
+  </div>
+<script>
+const SUBLEADER_BASE = 8500000, SUBLEADER_FW = 1500000;
+const defaultPrices = { 'Mini RP': 200000, 'RP': 500000, 'GST[SS]': 300000, 'Gasht': 350000, 'Shift': 50000, 'Put Fire': 35000 };
+function readStore(key, fallback) {
+  try { return JSON.parse(localStorage.getItem(key) || JSON.stringify(fallback)); }
+  catch (e) { return fallback; }
+}
+function loadPrices() { return Object.assign({}, defaultPrices, readStore('customTaskPrices', {}), readStore('customTasks', {})); }
+let taskPrices = loadPrices();
+function rebuildTaskPrices() { taskPrices = loadPrices(); }
+function isSubleader() { return document.getElementById('subleaderCheck').checked; }
+function onSubleaderChange() {
+  var on = isSubleader();
+  document.getElementById('subleaderBox').classList.toggle('active', on);
+  updatePlayerName(); updateTotal();
+}
+function renderTaskOptions(keep) {
+  var select = document.getElementById('taskName');
+  var current = keep || select.value;
+  select.innerHTML = '';
+  Object.keys(taskPrices).forEach(function (name) {
+    var opt = document.createElement('option');
+    opt.value = name; opt.textContent = name; select.appendChild(opt);
+  });
+  if (taskPrices[current] !== undefined) select.value = current;
+}
+function togglePriceEditor() {
+  var box = document.getElementById('priceBox');
+  box.classList.toggle('open');
+  if (box.classList.contains('open')) renderPriceEditor();
+}
+function renderPriceEditor() {
+  var wrap = document.getElementById('priceRows');
+  var customs = readStore('customTasks', {});
+  wrap.innerHTML = '';
+  Object.keys(taskPrices).forEach(function (name) {
+    var row = document.createElement('div');
+    row.className = 'price-row';
+    row.innerHTML = '<span class="price-name"></span><input type="number" min="0">';
+    row.querySelector('.price-name').textContent = name;
+    var inp = row.querySelector('input');
+    inp.value = taskPrices[name] || 0;
+    inp.setAttribute('data-task', name);
+    if (customs[name] !== undefined) {
+      var b = document.createElement('button');
+      b.className = 'action-btn'; b.textContent = 'حذف';
+      b.onclick = function () { deleteCustomTask(name); };
+      row.appendChild(b);
+    }
+    wrap.appendChild(row);
+  });
+}
+function savePrices() {
+  var overrides = {}, customs = readStore('customTasks', {});
+  document.querySelectorAll('#priceRows input[data-task]').forEach(function (inp) {
+    var v = parseFloat(inp.value);
+    if (isNaN(v) || v < 0) return;
+    var name = inp.getAttribute('data-task');
+    if (defaultPrices[name] !== undefined) overrides[name] = v; else customs[name] = v;
+  });
+  try {
+    localStorage.setItem('customTaskPrices', JSON.stringify(overrides));
+    localStorage.setItem('customTasks', JSON.stringify(customs));
+  } catch (e) {}
+  rebuildTaskPrices(); renderTaskOptions(); updatePrice();
+  document.getElementById('priceBox').classList.remove('open');
+}
+function addCustomTask() {
+  var name = (document.getElementById('newTaskName').value || '').trim();
+  var price = parseFloat(document.getElementById('newTaskPrice').value);
+  if (!name || isNaN(price) || price < 0 || taskPrices[name] !== undefined) return;
+  var customs = readStore('customTasks', {});
+  customs[name] = price;
+  try { localStorage.setItem('customTasks', JSON.stringify(customs)); } catch (e) {}
+  rebuildTaskPrices(); renderTaskOptions(name); renderPriceEditor(); updatePrice();
+  document.getElementById('newTaskName').value = '';
+  document.getElementById('newTaskPrice').value = '';
+}
+function deleteCustomTask(name) {
+  var customs = readStore('customTasks', {});
+  delete customs[name];
+  try { localStorage.setItem('customTasks', JSON.stringify(customs)); } catch (e) {}
+  rebuildTaskPrices(); renderTaskOptions(); renderPriceEditor(); updatePrice();
+}
+function resetPrices() {
+  taskPrices = Object.assign({}, defaultPrices);
+  try { localStorage.removeItem('customTaskPrices'); localStorage.removeItem('customTasks'); } catch (e) {}
+  renderTaskOptions(); renderPriceEditor(); updatePrice();
+}
+function updatePrice() {
+  var v = document.getElementById('taskName').value;
+  document.getElementById('pricePerUnit').value = taskPrices[v] !== undefined ? taskPrices[v] : '';
+}
+var tbody = document.getElementById('tableBody');
+var totalSpan = document.getElementById('total');
+function addRow() {
+  var name = document.getElementById('taskName').value;
+  var price = parseFloat(String(document.getElementById('pricePerUnit').value || '').replace(/,/g, '')) || 0;
+  var qty = parseInt(document.getElementById('quantity').value, 10) || 0;
+  if (!name || qty <= 0) return;
+  var sub = price * qty;
+  var tr = document.createElement('tr');
+  tr.innerHTML = '<td></td><td></td><td></td><td></td><td><button class="action-btn" onclick="deleteRow(this)">حذف</button></td>';
+  tr.cells[0].textContent = name;
+  tr.cells[1].textContent = price.toLocaleString('en-US');
+  tr.cells[2].textContent = String(qty);
+  tr.cells[3].textContent = sub.toLocaleString('en-US');
+  // عدد خام رو ذخیره کن
+  tr.dataset.subtotal = sub;
+  tbody.appendChild(tr);
+  updateTotal(); updatePrice();
+  document.getElementById('quantity').value = '';
+}
+
+function computeTotals() {
+  var fw = getFwCount();
+  var sumItems = 0;
+  tbody.querySelectorAll('tr').forEach(function (r) {
+    // اول از data attribute بخون، اگه نبود از textContent (برای سازگاری)
+    var val = r.dataset.subtotal;
+    if (val !== undefined && val !== '') {
+      sumItems += parseFloat(val) || 0;
+    } else {
+      // fallback قدیمی
+      sumItems += parseFloat((r.cells[3].textContent || '').replace(/[^\d.-]/g, '')) || 0;
+    }
+  });
+  // ... بقیه تابع همون بمونه
+}
+function deleteRow(btn) { tbody.removeChild(btn.parentNode.parentNode); updateTotal(); }
+function nextPlayer() {
+  autoSaveHistory();
+  tbody.innerHTML = '';
+  document.getElementById('quantity').value = '';
+  document.getElementById('fwCount').value = '';
+  document.getElementById('playerName').value = '';
+  document.getElementById('subleaderCheck').checked = false;
+  onSubleaderChange();
+  updatePlayerName(); updatePrice(); updateTotal();
+  document.getElementById('playerName').focus();
+}
+function getFwCount() { return Math.max(0, parseInt(document.getElementById('fwCount').value, 10) || 0); }
+function computeTotals() {
+  var fw = getFwCount();
+  var sumItems = 0;
+  tbody.querySelectorAll('tr').forEach(function (r) {
+    sumItems += parseFloat((r.cells[3].textContent || '').replace(/,/g, '')) || 0;
+  });
+  if (isSubleader()) {
+    var gross = SUBLEADER_BASE + sumItems;
+    var deduction = fw * SUBLEADER_FW;
+    var net = Math.max(0, gross - deduction);
+    return { gross: gross, fw: fw, deduction: deduction, net: net, subleader: true, items: sumItems };
+  } else {
+    var gross = sumItems;
+    var rate = Math.min(fw * 0.10, 1);
+    var deduction = Math.round(gross * rate);
+    var net = gross - deduction;
+    return { gross: gross, fw: fw, deduction: deduction, net: net, subleader: false, items: sumItems };
+  }
+}
+function updateTotal() {
+  var t = computeTotals();
+  totalSpan.textContent = t.gross.toLocaleString();
+  var fwDisplay = document.getElementById('fwDisplay');
+  var netLabel = document.getElementById('netLabel');
+  var netTotal = document.getElementById('netTotal');
+  if (t.fw > 0 && t.gross > 0) {
+    fwDisplay.textContent = t.subleader
+      ? ('کسر سابلیدر FW (' + t.fw + ' × ۱٬۵۰۰٬۰۰۰): ' + t.deduction.toLocaleString())
+      : ('کسر FW (' + t.fw + ' × ۱۰٪): ' + t.deduction.toLocaleString());
+    netLabel.style.display = 'block';
+    netTotal.style.display = 'block';
+    netTotal.textContent = t.net.toLocaleString();
+  } else {
+    fwDisplay.textContent = '';
+    netLabel.style.display = 'none';
+    netTotal.style.display = 'none';
+  }
+}
+function onFwChange() { updateTotal(); }
+function updatePlayerName() {
+  var name = document.getElementById('playerName').value.trim();
+  document.getElementById('playerDisplay').textContent = name ? ('پلیر: ' + name + (isSubleader() ? ' · سابلیدر' : '')) : '';
+}
+function getHistory() { try { return JSON.parse(localStorage.getItem('salaryHistory') || '[]'); } catch (e) { return []; } }
+function setHistory(list) { localStorage.setItem('salaryHistory', JSON.stringify(list)); }
+function getPaid() { return readStore('playerPaid', {}); }
+function setPaid(map) { try { localStorage.setItem('playerPaid', JSON.stringify(map)); } catch (e) {} }
+function getCurrentItems() {
+  var items = [];
+  if (isSubleader()) {
+    items.push({ name: 'سابلیدر (ثابت)', price: SUBLEADER_BASE.toLocaleString(), qty: '1', subtotal: SUBLEADER_BASE.toLocaleString() });
+  }
+  tbody.querySelectorAll('tr').forEach(function (r) {
+    items.push({ name: r.cells[0].textContent, price: r.cells[1].textContent, qty: r.cells[2].textContent, subtotal: r.cells[3].textContent });
+  });
+  return items;
+}
+function autoSaveHistory() {
+  var t = computeTotals();
+  if (t.subleader && t.gross > 0) {
+    // ذخیره می‌شود
+  } else if (!t.subleader && t.net <= 0) {
+    return;
+  }
+  var player = document.getElementById('playerName').value.trim() || 'بدون نام';
+  var now = new Date();
+  var dateStr = now.toLocaleDateString('fa-IR') + ' ' + now.toLocaleTimeString('fa-IR', { hour: '2-digit', minute: '2-digit' });
+  var list = getHistory();
+  list.unshift({ player: player, total: t.net, gross: t.gross, fw: t.fw, deduction: t.deduction, date: dateStr, items: getCurrentItems(), subleader: t.subleader });
+  setHistory(list);
+  if (document.getElementById('historyBox').classList.contains('open')) renderHistory();
+  if (document.getElementById('playersBox').classList.contains('open')) renderPlayers();
+}
+function toggleHistory() {
+  var box = document.getElementById('historyBox');
+  box.classList.toggle('open');
+  if (box.classList.contains('open')) renderHistory();
+}
+function togglePlayers() {
+  var box = document.getElementById('playersBox');
+  box.classList.toggle('open');
+  if (box.classList.contains('open')) renderPlayers();
+}
+
+// ----- توابع مربوط به بست اکتیویتی (خودکار) -----
+function computeBonuses(players) {
+  // players: [{name, total, count, subleader}]
+  // فیلتر کردن غیر ساب‌لیدرها
+  var nonSub = players.filter(function(p) { return !p.subleader; });
+  // مرتب‌سازی بر اساس مجموع نزولی
+  nonSub.sort(function(a, b) { return b.total - a.total; });
+  // تخصیص بونوس
+  var bonusMap = {};
+  var bonusAmounts = [3000000, 2000000, 1000000];
+  for (var i = 0; i < Math.min(3, nonSub.length); i++) {
+    bonusMap[nonSub[i].name] = bonusAmounts[i];
+  }
+  // محاسبه مجموع با بونوس برای هر پلیر
+  var result = players.map(function(p) {
+    var bonus = bonusMap[p.name] || 0;
+    return {
+      name: p.name,
+      total: p.total,
+      count: p.count,
+      subleader: p.subleader,
+      bonus: bonus,
+      totalWithBonus: p.total + bonus
+    };
+  });
+  return result;
+}
+
+function renderStats() {
+  var list = getHistory();
+  var sum = list.reduce(function (s, it) { return s + (Number(it.total) || 0); }, 0);
+  document.getElementById('statCount').textContent = list.length.toLocaleString();
+  var counts = {};
+  list.forEach(function (it) { var p = it.player || 'بدون نام'; counts[p] = (counts[p] || 0) + 1; });
+  var top = '—', topN = 0;
+  Object.keys(counts).forEach(function (p) { if (counts[p] > topN) { topN = counts[p]; top = p; } });
+  document.getElementById('statTop').textContent = top === '—' ? '—' : top + ' (' + topN + ')';
+
+  // محاسبه مجموع با بونوس از پلیرها (برای statTotal)
+  var map = buildPlayerMap(list);
+  var playersWithBonus = computeBonuses(map);
+  var totalWithBonus = playersWithBonus.reduce(function(s, p) { return s + p.totalWithBonus; }, 0);
+  document.getElementById('statTotal').textContent = totalWithBonus.toLocaleString();
+}
+
+function buildPlayerMap(list) {
+  var map = {};
+  list.forEach(function (it) {
+    var p = it.player || 'بدون نام';
+    if (!map[p]) map[p] = { name: p, total: 0, count: 0, subleader: !!it.subleader };
+    map[p].total += Number(it.total) || 0;
+    map[p].count += 1;
+    // اگر حداقل یک مورد ساب‌لیدر باشد، subleader = true
+    if (it.subleader) map[p].subleader = true;
+  });
+  return Object.keys(map).map(function (k) { return map[k]; });
+}
+
+function renderHistory() {
+  renderStats();
+  var box = document.getElementById('historyList');
+  var q = (document.getElementById('historySearch').value || '').trim();
+  var list = getHistory();
+  if (!list.length) { box.innerHTML = '<div class="history-empty">هنوز حقوقی ذخیره نشده</div>'; return; }
+  var filtered = list.map(function (item, idx) { item._idx = idx; return item; }).filter(function (item) { return !q || (item.player || '').indexOf(q) !== -1; });
+  if (!filtered.length) { box.innerHTML = '<div class="history-empty">موردی برای این اسم پیدا نشد</div>'; return; }
+  box.innerHTML = '';
+  filtered.forEach(function (item) {
+    var div = document.createElement('div');
+    div.className = 'history-item';
+    var fwTag = item.fw > 0 ? '<span class="history-date">FW: ' + item.fw + ' (کسر ' + Number(item.deduction || 0).toLocaleString() + ')</span>' : '';
+    var itemsHtml = '';
+    if (item.items && item.items.length) {
+      itemsHtml = '<div class="history-items">' + item.items.map(function (it) {
+        return '<div class="history-line"><span></span><span></span></div>';
+      }).join('') + '</div>';
+    }
+    div.innerHTML =
+      '<div class="history-top"><div><span class="history-player"></span><span class="history-date"></span>' + fwTag +
+      '</div><span class="history-amount"></span><button class="history-del">حذف</button></div>' + itemsHtml;
+    div.querySelector('.history-player').textContent = item.player + (item.subleader ? ' · سابلیدر' : '');
+    div.querySelector('.history-date').textContent = item.date;
+    div.querySelector('.history-amount').textContent = Number(item.total).toLocaleString();
+    div.querySelector('.history-del').onclick = function () { deleteHistoryItem(item._idx); };
+    if (item.items && item.items.length) {
+      var lines = div.querySelectorAll('.history-line');
+      item.items.forEach(function (it, j) {
+        if (!lines[j]) return;
+        lines[j].children[0].textContent = it.name + ' × ' + it.qty;
+        lines[j].children[1].textContent = it.subtotal;
+      });
+    }
+    box.appendChild(div);
+  });
+}
+
+function renderPlayers() {
+  var list = getHistory();
+  var paid = getPaid();
+  var map = buildPlayerMap(list);
+  var playersWithBonus = computeBonuses(map);
+  playersWithBonus.sort(function(a, b) { return b.totalWithBonus - a.totalWithBonus; });
+
+  var unpaid = 0, paidSum = 0, paidN = 0;
+  playersWithBonus.forEach(function (p) {
+    if (paid[p.name]) { paidSum += p.totalWithBonus; paidN += 1; } else unpaid += p.totalWithBonus;
+  });
+  document.getElementById('pCount').textContent = String(playersWithBonus.length);
+  document.getElementById('pUnpaid').textContent = unpaid.toLocaleString();
+  document.getElementById('pPaidN').textContent = paidN + ' / ' + playersWithBonus.length;
+  document.getElementById('pPaidSum').textContent = paidSum > 0 ? ('جمع پرداخت‌شده: ' + paidSum.toLocaleString()) : '';
+
+  var box = document.getElementById('playersList');
+  if (!playersWithBonus.length) { box.innerHTML = '<div class="history-empty">هنوز پلیری ثبت نشده</div>'; return; }
+  box.innerHTML = '';
+  playersWithBonus.forEach(function (p) {
+    var isPaid = !!paid[p.name];
+    var lab = document.createElement('label');
+    lab.className = 'player-item' + (isPaid ? ' paid' : '');
+    var bonusText = p.bonus > 0 ? (' <span class="player-bonus">(+' + p.bonus.toLocaleString() + ' بست اکتیویتی)</span>') : '';
+    lab.innerHTML = '<input type="checkbox"><span class="player-meta"><span class="player-name"></span><span class="player-count"></span></span><span class="player-amount"></span><span class="paid-tag"></span>';
+    lab.querySelector('input').checked = isPaid;
+    lab.querySelector('.player-name').textContent = p.name + (p.subleader ? ' · سابلیدر' : '');
+    lab.querySelector('.player-name').insertAdjacentHTML('afterend', bonusText);
+    lab.querySelector('.player-count').textContent = p.count + ' محاسبه';
+    var totalDisplay = p.total.toLocaleString() + (p.bonus > 0 ? (' → ' + p.totalWithBonus.toLocaleString()) : '');
+    lab.querySelector('.player-amount').textContent = totalDisplay;
+    lab.querySelector('.paid-tag').textContent = isPaid ? 'پرداخت شد' : 'پرداخت';
+    lab.querySelector('input').onchange = function (e) {
+      var m = getPaid();
+      m[p.name] = e.target.checked;
+      setPaid(m);
+      renderPlayers();
+    };
+    box.appendChild(lab);
+  });
+}
+
+function deleteHistoryItem(index) { var list = getHistory(); list.splice(index, 1); setHistory(list); renderHistory(); renderPlayers(); }
+function clearHistory() { setHistory([]); renderHistory(); renderPlayers(); }
+function clearPaid() { setPaid({}); renderPlayers(); }
+
+renderTaskOptions(); updatePrice();
+(function initSavedName() {
+  var saved = '';
+  try { saved = localStorage.getItem('savedMyName') || localStorage.getItem('savedPlayerName') || ''; } catch (e) {}
+  saved = (saved || '').trim();
+  if (saved) {
+    try { localStorage.setItem('savedMyName', saved); } catch (e) {}
+    document.getElementById('welcomeText').textContent = 'خوش اومدی ' + saved;
+    document.getElementById('welcomeName').style.display = 'none';
+    document.getElementById('welcomeBtn').style.display = 'none';
+    document.getElementById('welcomeSub').textContent = 'در حال ورود...';
+    setTimeout(closeWelcome, 1400);
+  } else {
+    setTimeout(function () { var wi = document.getElementById('welcomeName'); if (wi) wi.focus(); }, 300);
+  }
+})();
+var welcomeClosed = false;
+function closeWelcome() {
+  if (welcomeClosed) return;
+  welcomeClosed = true;
+  var w = document.getElementById('welcome');
+  if (!w) return;
+  w.classList.add('hide');
+  setTimeout(function () { var el = document.getElementById('welcome'); if (el) el.remove(); }, 1000);
+}
+function submitWelcomeName() {
+  var name = (document.getElementById('welcomeName').value || '').trim();
+  if (name) {
+    try { localStorage.setItem('savedMyName', name); } catch (e) {}
+    document.getElementById('welcomeText').textContent = 'خوش اومدی ' + name;
+  }
+  setTimeout(closeWelcome, 900);
+}
+</script>
+</body>
+</html>
